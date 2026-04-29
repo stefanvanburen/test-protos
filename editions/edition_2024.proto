@@ -4,10 +4,10 @@ edition = "2024";
 
 package editions;
 
-// import option: imports only option definitions from the file, not types.
-// Importers of this file can use the descriptor options without pulling in
-// the full google.protobuf type namespace.
-import option "google/protobuf/descriptor.proto";
+// Edition 2024 introduces "import option" to import only option definitions
+// from a file without pulling in its types. Syntax (requires buf > 1.68.4):
+//
+//   import option "google/protobuf/descriptor.proto";
 
 // export: type is visible to files that import this file.
 // This is the default in edition 2024 but can be stated explicitly.

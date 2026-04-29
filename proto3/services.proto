@@ -1,0 +1,54 @@
+// Proto3 services grammar: all streaming modes, options, and idempotency.
+
+syntax = "proto3";
+
+package proto3;
+
+import "proto3/basics.proto";
+import "proto3/custom_options.proto";
+
+// Service with all four RPC streaming modes and method annotations.
+service NodeService {
+  option (service_version) = "v1";
+  option deprecated = false;
+
+  // Unary.
+  rpc GetNode(TreeNode) returns (TreeNode);
+
+  // Client-streaming.
+  rpc CreateNodes(stream TreeNode) returns (TreeNode);
+
+  // Server-streaming.
+  rpc ListChildren(TreeNode) returns (stream TreeNode);
+
+  // Bidirectional-streaming.
+  rpc SyncTree(stream TreeNode) returns (stream TreeNode);
+
+  // Method with idempotency_level and custom options.
+  rpc FindNode(TreeNode) returns (TreeNode) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (method_idempotent) = true;
+    option deprecated = false;
+  }
+
+  // Deprecated method.
+  rpc OldSearch(ImplicitScalars) returns (TreeNode) {
+    option deprecated = true;
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+  }
+}
+
+// Second service to show multiple services with different stream patterns.
+service ScalarService {
+  option (service_version) = "v1";
+
+  rpc Echo(ImplicitScalars) returns (ImplicitScalars) {
+    option idempotency_level = IDEMPOTENT;
+  }
+
+  rpc Transform(stream ImplicitScalars) returns (stream ExplicitOptionalScalars);
+
+  rpc Validate(ImplicitScalars) returns (OneofExample) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}

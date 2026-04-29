@@ -1,0 +1,182 @@
+// Edition 2023 grammar: features-based semantics replacing syntax-level
+// proto2/proto3 distinctions. File-level, message-level, field-level,
+// enum-level, and service-level feature overrides.
+
+edition = "2023";
+
+package editions;
+
+import "google/protobuf/descriptor.proto";
+
+// File-level defaults: choose proto3-like semantics as the baseline.
+option features.field_presence = IMPLICIT;
+option features.enum_type = OPEN;
+option features.repeated_field_encoding = PACKED;
+option features.utf8_validation = VERIFY;
+option features.message_encoding = LENGTH_PREFIXED;
+option features.json_format = ALLOW;
+
+// Custom options defined as extensions, same as proto2/proto3.
+extend google.protobuf.MessageOptions {
+  bool edition_stable = 52010;
+}
+
+extend google.protobuf.FieldOptions {
+  string edition_field_doc = 52020;
+}
+
+// Open enum (inherits file-level features.enum_type = OPEN).
+enum OpenStatus {
+  OPEN_STATUS_UNSPECIFIED = 0;
+  OPEN_STATUS_ACTIVE = 1;
+  OPEN_STATUS_INACTIVE = 2;
+}
+
+// Closed enum — overrides file-level OPEN at the enum level.
+enum ClosedStatus {
+  option features.enum_type = CLOSED;
+
+  CLOSED_STATUS_UNSPECIFIED = 0;
+  CLOSED_STATUS_ACTIVE = 1;
+  CLOSED_STATUS_INACTIVE = 2;
+}
+
+// Enum with json_format override (valid at enum definition scope).
+enum JsonEnum {
+  option features.json_format = LEGACY_BEST_EFFORT;
+
+  JSON_ENUM_UNSPECIFIED = 0;
+  JSON_ENUM_A = 1;
+  JSON_ENUM_B = 2;
+}
+
+// Message inheriting file-level IMPLICIT field_presence.
+message ImplicitMessage {
+  option (edition_stable) = true;
+
+  // Implicit presence: zero-value == unset, no has_field().
+  int32 count = 1;
+  string name = 2;
+  bool flag = 3;
+  OpenStatus status = 4;
+}
+
+// Message with field-level presence overrides.
+message MixedPresence {
+  // EXPLICIT presence overrides file-level IMPLICIT for these fields.
+  int32 explicit_int = 1 [features.field_presence = EXPLICIT];
+  string explicit_string = 2 [
+    features.field_presence = EXPLICIT,
+    (edition_field_doc) = "has presence tracking"
+  ];
+
+  // Inherits IMPLICIT from file.
+  int32 implicit_int = 3;
+
+  // LEGACY_REQUIRED emulates proto2 required semantics.
+  int32 legacy_required = 4 [features.field_presence = LEGACY_REQUIRED];
+}
+
+// DELIMITED message_encoding (group wire format emulation).
+message DelimitedMessage {
+  // LENGTH_PREFIXED (inherits file default).
+  ImplicitMessage length_prefixed = 1;
+
+  // DELIMITED: uses proto2 group wire format on the wire.
+  ImplicitMessage delimited_field = 2 [features.message_encoding = DELIMITED];
+}
+
+// Repeated field encoding overrides.
+message RepeatedEncodings {
+  // PACKED (inherits file default — only for numeric types).
+  repeated int32 packed_ints = 1;
+
+  // EXPANDED: one tag+value per element (old non-packed encoding).
+  repeated int32 expanded_ints = 2 [features.repeated_field_encoding = EXPANDED];
+
+  // Strings are never packed.
+  repeated string strings = 3;
+}
+
+// UTF-8 validation override.
+message Utf8Variants {
+  // VERIFY (inherits file default).
+  string verified_string = 1;
+
+  // NONE: skip UTF-8 validation (for legacy binary data in string fields).
+  string unverified_string = 2 [features.utf8_validation = NONE];
+  bytes unverified_bytes = 3;
+}
+
+// Message-level json_format override (valid at message definition scope).
+message JsonVariants {
+  option features.json_format = LEGACY_BEST_EFFORT;
+
+  int32 count = 1;
+  OpenStatus status = 2;
+}
+
+// Reserved fields: in editions, names are bare identifiers (not strings).
+message EditionReserved {
+  int32 current = 1;
+
+  reserved 3, 4, 5;
+  reserved 10 to 20;
+  reserved 100 to max;
+  reserved old_string_name;
+  reserved single_quoted_name;
+  reserved bare_identifier_name;
+}
+
+// Oneof in edition 2023.
+message EditionOneof {
+  oneof contact {
+    string email = 1;
+    string phone = 2;
+  }
+
+  oneof id {
+    int64 numeric_id = 3;
+    string string_id = 4;
+  }
+}
+
+// Map fields.
+message EditionMaps {
+  map<string, int32> counts = 1;
+  map<int32, ImplicitMessage> lookup = 2;
+  map<string, OpenStatus> statuses = 3;
+}
+
+// Nested messages with per-message json_format and per-field features.
+message Outer {
+  option features.json_format = ALLOW;
+
+  int32 value = 1;
+
+  // Inner has its own message-level json_format override.
+  message Inner {
+    option features.json_format = LEGACY_BEST_EFFORT;
+
+    // Per-field field_presence overrides.
+    int32 explicit_val = 1 [features.field_presence = EXPLICIT];
+    int32 implicit_val = 2;
+    ClosedStatus closed_status = 3 [features.field_presence = EXPLICIT];
+  }
+
+  Inner inner = 2;
+  repeated Inner inner_list = 3;
+}
+
+// Service and method — same syntax as proto3.
+service EditionService {
+  rpc Unary(ImplicitMessage) returns (MixedPresence);
+  rpc ClientStream(stream ImplicitMessage) returns (Outer);
+  rpc ServerStream(ImplicitMessage) returns (stream Outer);
+  rpc BidiStream(stream ImplicitMessage) returns (stream Outer);
+
+  rpc WithOptions(MixedPresence) returns (ImplicitMessage) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option deprecated = false;
+  }
+}

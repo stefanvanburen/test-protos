@@ -1,0 +1,56 @@
+// Proto2 services grammar: all four RPC streaming modes, service and method
+// options, method-level features.
+
+syntax = "proto2";
+
+package proto2;
+
+import "proto2/custom_options.proto";
+import "proto2/messages.proto";
+import "proto2/scalars.proto";
+
+// Service demonstrating all streaming modes and option annotations.
+service GrammarService {
+  option (service_version) = "v1";
+  option (service_owner) = "grammar-team";
+  option deprecated = false;
+
+  // Unary RPC.
+  rpc GetNode(Node) returns (Node);
+
+  // Client-streaming RPC.
+  rpc StreamNodes(stream Node) returns (Extendable);
+
+  // Server-streaming RPC.
+  rpc WatchNodes(Node) returns (stream Node);
+
+  // Bidirectional-streaming RPC.
+  rpc SyncNodes(stream Node) returns (stream Node);
+
+  // Method with options.
+  rpc GetScalars(RequiredScalars) returns (OptionalScalars) {
+    option (method_idempotent) = true;
+    option (method_doc) = "fetches scalar demonstration message";
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option deprecated = false;
+  }
+
+  // Deprecated method.
+  rpc OldMethod(Node) returns (Node) {
+    option deprecated = true;
+    option (method_doc) = "use GetNode instead";
+  }
+}
+
+// A second service showing that multiple services per file are valid.
+service AuxService {
+  option (service_version) = "v1";
+
+  rpc Ping(Node) returns (Node) {
+    option idempotency_level = IDEMPOTENT;
+  }
+
+  rpc Upload(stream OptionalScalars) returns (Node) {
+    option idempotency_level = IDEMPOTENCY_UNKNOWN;
+  }
+}

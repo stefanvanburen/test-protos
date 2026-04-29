@@ -1,0 +1,41 @@
+// Custom option definitions for the proto3 grammar showcase.
+
+syntax = "proto3";
+
+package proto3;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FileOptions {
+  string file_version = 51000;
+  bool file_stable = 51001;
+}
+
+extend google.protobuf.MessageOptions {
+  bool message_stable = 51010;
+  string message_description = 51011;
+}
+
+extend google.protobuf.FieldOptions {
+  string field_description = 51020;
+}
+
+extend google.protobuf.OneofOptions {
+  string oneof_description = 51030;
+}
+
+extend google.protobuf.EnumOptions {
+  bool enum_exhaustive = 51040;
+}
+
+extend google.protobuf.EnumValueOptions {
+  string enum_value_label = 51050;
+}
+
+extend google.protobuf.ServiceOptions {
+  string service_version = 51060;
+}
+
+extend google.protobuf.MethodOptions {
+  bool method_idempotent = 51070;
+}

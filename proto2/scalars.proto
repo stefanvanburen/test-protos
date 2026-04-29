@@ -1,0 +1,150 @@
+// All proto2 scalar field types: required, optional, and repeated labels;
+// default values with all literal forms; and field options.
+
+syntax = "proto2";
+
+package proto2;
+
+import "proto2/custom_options.proto";
+
+option (file_version) = "1.0.0";
+option (file_stable) = true;
+option java_package = "com.example.grammar.proto2";
+option java_multiple_files = true;
+option java_outer_classname = "ScalarsProto";
+option optimize_for = CODE_SIZE;
+option cc_enable_arenas = true;
+option objc_class_prefix = "GP2";
+option php_namespace = "Grammar\\Proto2";
+
+// All scalar types with required cardinality.
+message RequiredScalars {
+  option (message_stable) = true;
+  option (message_description) = "Message exercising every scalar type as required.";
+
+  required double double_field = 1;
+  required float float_field = 2;
+  required int32 int32_field = 3;
+  required int64 int64_field = 4;
+  required uint32 uint32_field = 5;
+  required uint64 uint64_field = 6;
+  required sint32 sint32_field = 7;
+  required sint64 sint64_field = 8;
+  required fixed32 fixed32_field = 9;
+  required fixed64 fixed64_field = 10;
+  required sfixed32 sfixed32_field = 11;
+  required sfixed64 sfixed64_field = 12;
+  required bool bool_field = 13;
+  required string string_field = 14;
+  required bytes bytes_field = 15;
+}
+
+// All scalar types with optional cardinality and default values.
+// Exercises every literal form: decimal, octal, hex, float, inf, nan, and
+// string escape sequences.
+message OptionalScalars {
+  // Plain numeric defaults.
+  optional double double_dec = 1 [default = 3.14159265358979];
+  optional float float_sci = 2 [default = 1.5e3];
+  optional int32 int32_neg = 3 [default = -42];
+  optional int64 int64_large = 4 [default = 9007199254740992];
+  optional uint32 uint32_max = 5 [default = 4294967295];
+  optional uint64 uint64_zero = 6 [default = 0];
+  optional sint32 sint32_min = 7 [default = -2147483648];
+  optional sint64 sint64_neg = 8 [default = -1];
+
+  // Octal and hexadecimal defaults.
+  optional fixed32 hex_default = 9 [default = 0xDEADBEEF];
+  optional int32 oct_default = 10 [default = 0777];
+  optional int32 neg_hex_default = 11 [default = -0xABCD];
+
+  // Float special values.
+  optional double inf_pos = 13 [default = inf];
+  optional double inf_neg = 14 [default = -inf];
+  optional double nan_val = 15 [default = nan];
+  optional float inf_float = 16 [default = inf];
+
+  // Boolean and fixed-size types.
+  optional sfixed32 sfixed32_neg = 17 [default = -1];
+  optional sfixed64 sfixed64_min = 18 [default = -9223372036854775808];
+  optional bool bool_true = 19 [default = true];
+  optional bool bool_false = 20 [default = false];
+
+  // String defaults with various escape sequences.
+  optional string plain = 21 [default = "hello world"];
+  optional string tab_escape = 22 [default = "tab:\there"];
+  optional string newline_escape = 23 [default = "line1\nline2"];
+  optional string cr_escape = 24 [default = "cr\r"];
+  optional string null_escape = 25 [default = "\0"];
+  optional string hex_escape = 26 [default = "\x00\xFF"];
+  optional string octal_escape = 27 [default = "\001\002\003"];
+  optional string unicode_bmp = 28 [default = "AB"];
+  optional string unicode_full = 29 [default = "\U0001F600"];
+  optional string backslash = 30 [default = "back\\slash"];
+  optional string single_quote = 31 [default = "it\'s"];
+  optional string double_quote = 32 [default = "she said \"hi\""];
+
+  // Bytes default.
+  optional bytes bytes_val = 33 [default = "\x00\x01\x02\x03\xFF"];
+
+  // Adjacent string literals (concatenation).
+  optional string concatenated = 34 [default = "hello" " " "world"];
+}
+
+// All scalar types with repeated cardinality, demonstrating packed encoding
+// and multiple field options in compact notation.
+message RepeatedScalars {
+  repeated double double_field = 1 [packed = true];
+  repeated float float_field = 2 [packed = true];
+  repeated int32 int32_field = 3 [packed = true];
+  repeated int64 int64_field = 4 [packed = true];
+  repeated uint32 uint32_field = 5 [packed = true];
+  repeated uint64 uint64_field = 6 [packed = true];
+  repeated sint32 sint32_field = 7 [packed = true];
+  repeated sint64 sint64_field = 8 [packed = true];
+  repeated fixed32 fixed32_field = 9 [packed = true];
+  repeated fixed64 fixed64_field = 10 [packed = true];
+  repeated sfixed32 sfixed32_field = 11 [packed = true];
+  repeated sfixed64 sfixed64_field = 12 [packed = true];
+  repeated bool bool_field = 13 [packed = true];
+  repeated string string_field = 14;
+  repeated bytes bytes_field = 15;
+
+  // Multiple options in compact (single-bracket) notation.
+  repeated int32 annotated = 16 [
+    packed = true,
+    deprecated = true,
+    (field_description) = "legacy repeated int field",
+    (field_min) = 0,
+    (field_max) = 100
+  ];
+}
+
+// Demonstrates miscellaneous field options from FieldOptions.
+message FieldOptionVariants {
+  // ctype controls wire representation of string/bytes.
+  optional string cord_field = 1 [ctype = CORD];
+  optional string string_piece_field = 2 [ctype = STRING_PIECE];
+  optional bytes bytes_cord = 3 [ctype = CORD];
+
+  // jstype controls JSON serialization of 64-bit integers.
+  optional int64 js_string_field = 4 [jstype = JS_STRING];
+  optional uint64 js_number_field = 5 [jstype = JS_NUMBER];
+  optional sint64 js_normal_field = 6 [jstype = JS_NORMAL];
+
+  // Deprecated.
+  optional string deprecated_field = 7 [deprecated = true];
+
+  // Custom JSON name.
+  optional string renamed_field = 8 [json_name = "renamedForJson"];
+
+  // debug_redact suppresses value in debug output.
+  optional string secret_field = 9 [debug_redact = true];
+
+  // Custom options.
+  optional int32 custom_annotated = 10 [
+    (field_description) = "custom annotation",
+    (field_min) = -100,
+    (field_max) = 100
+  ];
+}

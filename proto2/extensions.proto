@@ -1,0 +1,83 @@
+// Proto2 extensions grammar: extend blocks, top-level and nested extend,
+// extension of Extendable from messages.proto.
+
+syntax = "proto2";
+
+package proto2;
+
+import "google/protobuf/descriptor.proto";
+import "proto2/custom_options.proto";
+import "proto2/enums.proto";
+import "proto2/messages.proto";
+
+// Top-level extend block adds fields to Extendable.
+extend Extendable {
+  optional string ext_string = 100;
+  optional int32 ext_int = 101;
+  optional bool ext_bool = 102;
+  optional Color ext_enum = 103;
+  optional Node ext_message = 104;
+  repeated string ext_repeated = 105;
+}
+
+// A message with a nested extend block (extend nested within a message scope).
+message ExtensionHolder {
+  optional string local_field = 1;
+
+  extend Extendable {
+    optional bytes nested_ext_bytes = 200;
+    optional float nested_ext_float = 201;
+  }
+
+  // A message that is itself extendable.
+  message Inner {
+    optional string inner_value = 1;
+    extensions 10 to 50;
+  }
+}
+
+// Extend the Inner message from ExtensionHolder.
+extend ExtensionHolder.Inner {
+  optional string inner_ext = 10;
+  optional int64 inner_ext_id = 11;
+}
+
+// Message demonstrating all extension range syntaxes.
+message MultiRange {
+  optional string field = 1;
+
+  // Single number.
+  extensions 100;
+
+  // Explicit range.
+  extensions 200 to 299;
+
+  // Range to max.
+  extensions 1000 to max;
+}
+
+// Extend MultiRange from all three ranges.
+extend MultiRange {
+  optional string range_single = 100;
+  optional string range_explicit = 200;
+  optional string range_max = 1000;
+}
+
+// Message that extends a custom option — demonstrates that extensions work
+// in the options space too.
+message OptionExtender {
+  optional string name = 1;
+}
+
+extend google.protobuf.MessageOptions {
+  optional OptionExtender complex_option = 50080;
+}
+
+// Use the complex option above, with a message-literal value.
+message UsesComplexOption {
+  option (complex_option) = {
+    name: "example"
+  };
+
+  optional string value = 1;
+}

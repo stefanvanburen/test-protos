@@ -1,0 +1,193 @@
+// Proto3 grammar: implicit field presence, explicit optional, repeated,
+// maps, oneof, open enums, and all scalar types.
+
+syntax = "proto3";
+
+package proto3;
+
+import "proto3/custom_options.proto";
+
+option (file_version) = "1.0.0";
+option java_package = "com.example.grammar.proto3";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+// Open enum (proto3 default): unknown values are preserved.
+enum Status {
+  option (enum_exhaustive) = false;
+
+  STATUS_UNSPECIFIED = 0;
+  STATUS_ACTIVE = 1 [(enum_value_label) = "active"];
+  STATUS_INACTIVE = 2;
+  STATUS_PENDING = 3 [deprecated = true];
+}
+
+// Enum with allow_alias is explicitly disallowed in proto3 unless enabled,
+// but we demonstrate a plain enum with a skip in value numbering.
+enum Priority {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_LOW = 1;
+  PRIORITY_MEDIUM = 5;
+  PRIORITY_HIGH = 10;
+  PRIORITY_CRITICAL = 100;
+}
+
+// Proto3 scalars: no explicit label means implicit presence (singular field).
+message ImplicitScalars {
+  option (message_stable) = true;
+
+  double double_field = 1;
+  float float_field = 2;
+  int32 int32_field = 3;
+  int64 int64_field = 4;
+  uint32 uint32_field = 5;
+  uint64 uint64_field = 6;
+  sint32 sint32_field = 7;
+  sint64 sint64_field = 8;
+  fixed32 fixed32_field = 9;
+  fixed64 fixed64_field = 10;
+  sfixed32 sfixed32_field = 11;
+  sfixed64 sfixed64_field = 12;
+  bool bool_field = 13;
+  string string_field = 14;
+  bytes bytes_field = 15;
+}
+
+// Explicit optional (proto3 optional): field has presence tracking.
+message ExplicitOptionalScalars {
+  optional double double_field = 1;
+  optional float float_field = 2;
+  optional int32 int32_field = 3;
+  optional int64 int64_field = 4;
+  optional uint32 uint32_field = 5;
+  optional uint64 uint64_field = 6;
+  optional sint32 sint32_field = 7;
+  optional sint64 sint64_field = 8;
+  optional fixed32 fixed32_field = 9;
+  optional fixed64 fixed64_field = 10;
+  optional sfixed32 sfixed32_field = 11;
+  optional sfixed64 sfixed64_field = 12;
+  optional bool bool_field = 13;
+  optional string string_field = 14;
+  optional bytes bytes_field = 15;
+  optional Status status = 16;
+  optional Priority priority = 17;
+}
+
+// Repeated scalars (implicitly packed in proto3).
+message RepeatedScalars {
+  repeated double double_field = 1;
+  repeated float float_field = 2;
+  repeated int32 int32_field = 3;
+  repeated int64 int64_field = 4;
+  repeated uint32 uint32_field = 5;
+  repeated uint64 uint64_field = 6;
+  repeated sint32 sint32_field = 7;
+  repeated sint64 sint64_field = 8;
+  repeated fixed32 fixed32_field = 9;
+  repeated fixed64 fixed64_field = 10;
+  repeated sfixed32 sfixed32_field = 11;
+  repeated sfixed64 sfixed64_field = 12;
+  repeated bool bool_field = 13;
+  repeated string string_field = 14;
+  repeated bytes bytes_field = 15;
+
+  // Explicit packed = false (opt out of proto3 default).
+  repeated int32 unpacked_int32 = 16 [packed = false];
+}
+
+// Map fields with all valid key types.
+message MapVariants {
+  map<string, int32> string_to_int = 1;
+  map<int32, string> int_to_string = 2;
+  map<int64, bool> int64_to_bool = 3;
+  map<uint32, bytes> uint32_to_bytes = 4;
+  map<uint64, double> uint64_to_double = 5;
+  map<sint32, float> sint32_to_float = 6;
+  map<sint64, int32> sint64_to_int = 7;
+  map<fixed32, int64> fixed32_to_int64 = 8;
+  map<fixed64, uint32> fixed64_to_uint32 = 9;
+  map<sfixed32, uint64> sfixed32_to_uint64 = 10;
+  map<sfixed64, sint32> sfixed64_to_sint32 = 11;
+  map<bool, sint64> bool_to_sint64 = 12;
+  map<string, ImplicitScalars> string_to_message = 13;
+  map<int32, Status> int_to_enum = 14;
+}
+
+// Oneof with option annotation.
+message OneofExample {
+  oneof contact {
+    option (oneof_description) = "one of email, phone, or address";
+
+    string email = 1;
+    string phone = 2;
+    string postal_address = 3;
+  }
+
+  // Fields outside the oneof.
+  string name = 4;
+  optional string nickname = 5;
+
+  // Second oneof.
+  oneof id_kind {
+    int64 user_id = 6;
+    string external_id = 7;
+    bytes raw_id = 8;
+  }
+}
+
+// Nested messages and self-reference.
+message TreeNode {
+  option (message_description) = "A recursive tree node.";
+
+  string value = 1;
+  repeated TreeNode children = 2;
+  optional TreeNode.Tag tag = 3;
+
+  message Tag {
+    string key = 1;
+    string val = 2;
+  }
+}
+
+// Reserved fields: numbers, ranges, names, single-quoted strings,
+// and bare identifiers (valid in proto3).
+message ReservedExample {
+  string current = 1;
+  int32 count = 2;
+
+  reserved 3, 4, 5;
+  reserved 10 to 20;
+  reserved 100 to max;
+  reserved "old_field", "another_old_field";
+  reserved 'single_quoted';
+}
+
+// Field options available in proto3.
+message FieldOptionVariants {
+  // json_name overrides the default camelCase JSON key.
+  string renamed_field = 1 [json_name = "customJsonName"];
+
+  // deprecated marks a field for removal.
+  string deprecated_field = 2 [deprecated = true];
+
+  // debug_redact suppresses the value in debug output.
+  string secret_field = 3 [debug_redact = true];
+
+  // jstype controls JSON serialization of 64-bit integers.
+  int64 js_string = 4 [jstype = JS_STRING];
+  uint64 js_number = 5 [jstype = JS_NUMBER];
+
+  // ctype for string/bytes encoding.
+  string cord_string = 6 [ctype = CORD];
+
+  // Custom option.
+  string annotated = 7 [(field_description) = "custom annotation"];
+
+  // Multiple options in compact notation.
+  int32 multi_opt = 8 [
+    deprecated = false,
+    json_name = "multiOpt",
+    (field_description) = "multi-option field"
+  ];
+}

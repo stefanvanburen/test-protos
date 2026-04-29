@@ -1,0 +1,47 @@
+// Custom option definitions for the proto2 grammar showcase.
+// All other proto2 files import this to annotate elements.
+
+syntax = "proto2";
+
+package proto2;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FileOptions {
+  optional string file_version = 50000;
+  optional bool file_stable = 50001;
+}
+
+extend google.protobuf.MessageOptions {
+  optional bool message_stable = 50010;
+  optional string message_description = 50011;
+}
+
+extend google.protobuf.FieldOptions {
+  optional string field_description = 50020;
+  optional int32 field_min = 50021;
+  optional int32 field_max = 50022;
+}
+
+extend google.protobuf.OneofOptions {
+  optional string oneof_description = 50030;
+}
+
+extend google.protobuf.EnumOptions {
+  optional bool enum_exhaustive = 50040;
+}
+
+extend google.protobuf.EnumValueOptions {
+  optional string enum_value_label = 50050;
+  optional int32 enum_value_numeric = 50051;
+}
+
+extend google.protobuf.ServiceOptions {
+  optional string service_version = 50060;
+  optional string service_owner = 50061;
+}
+
+extend google.protobuf.MethodOptions {
+  optional bool method_idempotent = 50070;
+  optional string method_doc = 50071;
+}

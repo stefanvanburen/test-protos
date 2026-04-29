@@ -1,0 +1,74 @@
+// Edition 2024 grammar: symbol visibility (export/local) and import option.
+
+edition = "2024";
+
+package editions;
+
+// import option: imports only option definitions from the file, not types.
+// Importers of this file can use the descriptor options without pulling in
+// the full google.protobuf type namespace.
+import option "google/protobuf/descriptor.proto";
+
+// export: type is visible to files that import this file.
+// This is the default in edition 2024 but can be stated explicitly.
+export message PublicRequest {
+  string name = 1;
+  int32 count = 2;
+}
+
+export message PublicResponse {
+  string result = 1;
+  bool success = 2;
+}
+
+// local: type is visible only within this file; importers cannot use it.
+local message PrivateHelper {
+  string internal_id = 1;
+  bytes payload = 2;
+}
+
+// local enum.
+local enum InternalStatus {
+  INTERNAL_STATUS_UNSPECIFIED = 0;
+  INTERNAL_STATUS_PROCESSING = 1;
+  INTERNAL_STATUS_DONE = 2;
+}
+
+// export enum.
+export enum PublicStatus {
+  PUBLIC_STATUS_UNSPECIFIED = 0;
+  PUBLIC_STATUS_OK = 1;
+  PUBLIC_STATUS_ERROR = 2;
+}
+
+// No explicit modifier — default visibility applies.
+message DefaultVisibility {
+  PublicRequest request = 1;
+  PublicResponse response = 2;
+  // local types are usable within the same file.
+  PrivateHelper helper = 3;
+  InternalStatus internal = 4;
+  PublicStatus public_status = 5;
+}
+
+// Reserved in editions 2024: names are bare identifiers (not strings).
+export message WithReserved {
+  string value = 1;
+
+  reserved 2, 3;
+  reserved 10 to max;
+  reserved bare_name;
+  reserved another_bare_name;
+}
+
+// Services in edition 2024 use regular syntax (no export/local modifier).
+service PublicService {
+  rpc Process(PublicRequest) returns (PublicResponse);
+  rpc Watch(PublicRequest) returns (stream PublicResponse);
+  rpc Collect(stream PublicRequest) returns (PublicResponse);
+  rpc Exchange(stream PublicRequest) returns (stream PublicResponse);
+}
+
+service InternalService {
+  rpc Help(PrivateHelper) returns (PublicResponse);
+}

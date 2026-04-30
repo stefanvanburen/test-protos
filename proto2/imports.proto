@@ -5,13 +5,12 @@ syntax = "proto2";
 
 package proto2;
 
-// Public import: all symbols from scalars.proto become visible to any file
-// that imports this file, without needing to import scalars.proto directly.
-import public "proto2/scalars.proto";
-
 // Weak import: the dependency is optional at runtime; the generated code
 // must guard against the imported types being absent.
 import weak "google/protobuf/any.proto";
+// Public import: all symbols from scalars.proto become visible to any file
+// that imports this file, without needing to import scalars.proto directly.
+import public "proto2/scalars.proto";
 
 // This message uses types from the publicly re-exported scalars.proto,
 // proving transitive visibility works.

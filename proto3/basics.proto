@@ -7,10 +7,10 @@ package proto3;
 
 import "proto3/custom_options.proto";
 
-option (file_version) = "1.0.0";
-option java_package = "com.example.grammar.proto3";
 option java_multiple_files = true;
+option java_package = "com.example.grammar.proto3";
 option optimize_for = SPEED;
+option (file_version) = "1.0.0";
 
 // Open enum (proto3 default): unknown values are preserved.
 enum Status {

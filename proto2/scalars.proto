@@ -7,15 +7,15 @@ package proto2;
 
 import "proto2/custom_options.proto";
 
-option (file_version) = "1.0.0";
-option (file_stable) = true;
-option java_package = "com.example.grammar.proto2";
+option cc_enable_arenas = true;
 option java_multiple_files = true;
 option java_outer_classname = "ScalarsProto";
-option optimize_for = CODE_SIZE;
-option cc_enable_arenas = true;
+option java_package = "com.example.grammar.proto2";
 option objc_class_prefix = "GP2";
+option optimize_for = CODE_SIZE;
 option php_namespace = "Grammar\\Proto2";
+option (file_stable) = true;
+option (file_version) = "1.0.0";
 
 // All scalar types with required cardinality.
 message RequiredScalars {
@@ -88,7 +88,10 @@ message OptionalScalars {
   optional bytes bytes_val = 33 [default = "\x00\x01\x02\x03\xFF"];
 
   // Adjacent string literals (concatenation).
-  optional string concatenated = 34 [default = "hello" " " "world"];
+  optional string concatenated = 34 [default =
+    "hello"
+    " "
+    "world"];
 }
 
 // All scalar types with repeated cardinality, demonstrating packed encoding

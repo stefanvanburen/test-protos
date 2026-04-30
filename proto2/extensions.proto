@@ -75,9 +75,7 @@ extend google.protobuf.MessageOptions {
 
 // Use the complex option above, with a message-literal value.
 message UsesComplexOption {
-  option (complex_option) = {
-    name: "example"
-  };
+  option (complex_option) = {name: "example"};
 
   optional string value = 1;
 }

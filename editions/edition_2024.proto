@@ -5,9 +5,8 @@ edition = "2024";
 package editions;
 
 // Edition 2024 introduces "import option" to import only option definitions
-// from a file without pulling in its types. Syntax (requires buf > 1.68.4):
-//
-//   import option "google/protobuf/descriptor.proto";
+// from a file without pulling in its types.
+import option "google/protobuf/descriptor.proto";
 
 // export: type is visible to files that import this file.
 // This is the default in edition 2024 but can be stated explicitly.

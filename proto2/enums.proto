@@ -12,7 +12,10 @@ enum Status {
   option (enum_exhaustive) = true;
 
   STATUS_UNSPECIFIED = 0;
-  STATUS_ACTIVE = 1 [(enum_value_label) = "active", (enum_value_numeric) = 1];
+  STATUS_ACTIVE = 1 [
+    (enum_value_label) = "active",
+    (enum_value_numeric) = 1
+  ];
   STATUS_INACTIVE = 2 [(enum_value_label) = "inactive"];
   STATUS_PENDING = 3 [deprecated = true];
 
@@ -26,12 +29,12 @@ enum AliasedStatus {
   option allow_alias = true;
 
   ALIASED_STATUS_UNSPECIFIED = 0;
-  ALIASED_STATUS_UNKNOWN = 0;    // alias of UNSPECIFIED
+  ALIASED_STATUS_UNKNOWN = 0; // alias of UNSPECIFIED
   ALIASED_STATUS_OK = 1;
-  ALIASED_STATUS_SUCCESS = 1;    // alias of OK
-  ALIASED_STATUS_DONE = 1;       // another alias
+  ALIASED_STATUS_SUCCESS = 1; // alias of OK
+  ALIASED_STATUS_DONE = 1; // another alias
   ALIASED_STATUS_ERROR = 2;
-  ALIASED_STATUS_FAILURE = 2;    // alias of ERROR
+  ALIASED_STATUS_FAILURE = 2; // alias of ERROR
 }
 
 // Enum demonstrating the full numeric value range and special literals.
@@ -42,8 +45,8 @@ enum NumberRange {
   NUMBER_RANGE_MAX = 2147483647;
   NUMBER_RANGE_NEG_ONE = -1;
   NUMBER_RANGE_MIN = -2147483648;
-  NUMBER_RANGE_HEX = 256;        // 0x100 in decimal
-  NUMBER_RANGE_OCTAL = 8;        // 010 in octal
+  NUMBER_RANGE_HEX = 256; // 0x100 in decimal
+  NUMBER_RANGE_OCTAL = 8; // 010 in octal
 }
 
 // Nested enum inside a message.
